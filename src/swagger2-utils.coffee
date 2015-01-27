@@ -28,7 +28,7 @@ exports.validate = (swaggerDoc) ->
 
   @param {Object} swaggerDoc
 ###
-deReference = exports.deReference = (swaggerDoc) ->
+exports.dereference = (swaggerDoc) ->
   traverse(swaggerDoc).map (node) ->
     if typeof node is 'object'
       for key, value of node
