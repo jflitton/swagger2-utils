@@ -10,6 +10,8 @@ jsonSchema = require '../schema/json-schema-draft-04.json'
 validator = new ZSchema()
 validator.setRemoteReference jsonSchema.id, jsonSchema
 
+exports.validationError = null
+
 ###
   Validate the provided swagger document using the swagger 2.0 schema
 
@@ -17,9 +19,7 @@ validator.setRemoteReference jsonSchema.id, jsonSchema
 ###
 exports.validate = (swaggerDoc) ->
   valid = validator.validate swaggerDoc, swaggerSchema
-
-  if not valid
-    throw validator.getLastErrors()[0]
+  exports.validationError = if valid then null else validator.getLastErrors()[0]
 
   valid
 

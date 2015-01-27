@@ -1,6 +1,6 @@
 {
   "name": "swagger2-utils",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Utilities for validating and working with swagger 2.0 documents",
   "main": "lib/swagger2-utils.js",
   "repository": {
