@@ -37,26 +37,6 @@ exports.dereference = (swaggerDoc) ->
     node
 
 ###
-  Turns { someKey: { ... } } into [ { key: someKey, ...} ]
-  Disregards key/value pairs where the value isn't an object
-
-  @param {Object} obj
-  @param {String} keyName  Optional name to use for the key property in each object
-  @returns {Array.<Object>}
-###
-exports.objectToCollection = (obj, keyName) ->
-  keyName = keyName or 'key'
-  collection = []
-
-  for key, value of obj
-    if value? and typeof value is 'object'
-      clonedValue = clone value
-      clonedValue[keyName] = key
-      collection.push clonedValue
-
-  collection
-
-###
   Gets the value from the swagger document at the specified path
 
   @params {Object} swaggerDoc
