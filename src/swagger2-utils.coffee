@@ -15,7 +15,7 @@ exports.validationError = null
 
   @param {Object} swaggerDoc
 ###
-exports.validate = (swaggerDoc) ->
+validate = exports.validate = (swaggerDoc) ->
   valid = validator.validate swaggerDoc, swaggerSchema
   exports.validationError = if valid then null else validator.getLastErrors()[0]
 
@@ -26,7 +26,7 @@ exports.validate = (swaggerDoc) ->
 
   @param {Object} swaggerDoc
 ###
-exports.dereference = (swaggerDoc) ->
+dereference = exports.dereference = (swaggerDoc) ->
   traverse(swaggerDoc).map (node) ->
     if typeof node is 'object'
       for key, value of node
@@ -75,4 +75,24 @@ exports.objectToCollection = (obj, keyName) ->
 
   collection
 
+exports.createOperationsList = (swaggerDoc) ->
+  # Validate
+  if not validate swaggerDoc
+    throw exports.validationError
 
+  # Dereference
+  swaggerDoc = dereference swaggerDoc
+
+  # Process
+  operations = []
+
+  basePath = swaggerDoc.basePath or ''
+  for path, methods of swaggerDoc.paths
+    for method, operation of methods
+      if method isnt 'parameters'
+        newOperation = clone operation
+        newOperation.path = basePath + operation.path
+        newOperation.method = method
+        operations.push newOperation
+
+  operations
