@@ -1,6 +1,6 @@
 {
   "name": "swagger2-utils",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Utilities for validating and working with swagger 2.0 documents",
   "main": "lib/swagger2-utils.js",
   "repository": {
@@ -23,7 +23,6 @@
   "dependencies": {
     "clone": "^0.2.0",
     "traverse": "^0.6.6",
-    "bluebird": "^2.9.3",
     "z-schema": "^3.3.1"
   },
   "devDependencies": {

@@ -25,10 +25,9 @@ describe 'validate unit tests', ->
 
     it 'retains the error in .validationError', ->
       err = swagger2.validationError
-
       assert err.code is 'OBJECT_ADDITIONAL_PROPERTIES'
       assert.deepEqual err.params, [['getz']]
-      assert err.message is 'Additional properties not allowed: getz'
+      assert err.message is 'Additional properties not allowed: ["getz"]'
       assert err.path is '#/paths/~1user'
 
   context 'when provided an invalid swagger document where the error is in a referenced section', ->
