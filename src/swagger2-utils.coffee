@@ -12,12 +12,16 @@ exports.validationError = null
 customFieldPattern = /^x-/
 
 ###
-  Validate the provided swagger document using the swagger 2.0 schema
+  Validate the provided swagger document using the provided schema or the official
+  swagger 2.0 schema if not provided.
 
   @param {Object} swaggerDoc
+  @param {Object} schema
 ###
-validate = exports.validate = (swaggerDoc) ->
-  valid = validator.validate swaggerDoc, swaggerSchema
+validate = exports.validate = (swaggerDoc, schema) ->
+  schema = schema or swaggerSchema
+
+  valid = validator.validate swaggerDoc, schema
   exports.validationError = if valid then null else validator.getLastErrors()[0]
 
   valid
