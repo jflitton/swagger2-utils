@@ -124,7 +124,7 @@ exports.createOperationsList = (swaggerDoc) ->
 
     for method, operation of operations
       newOperation = clone operation
-      newOperation.path = basePath + operation.path
+      newOperation.path = basePath + path
       newOperation.method = method
       newOperation.security = operation.security or swaggerDoc.security or []
       newOperation.produces = operation.produces or swaggerDoc.produces or []
