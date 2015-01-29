@@ -7,8 +7,9 @@ jsonSchema = require '../schema/json-schema-draft-04.json'
 
 validator = new ZSchema()
 validator.setRemoteReference jsonSchema.id, jsonSchema
-
 exports.validationError = null
+
+customFieldPattern = /^x-/
 
 ###
   Validate the provided swagger document using the swagger 2.0 schema
@@ -47,10 +48,10 @@ getValueFromPath = (swaggerDoc, path) ->
     pathParts.shift()
 
   pathParts.reduce (current, pathPart) ->
-    if current? and typeof current is 'object'
+    if current?[pathPart]?
       current = current[pathPart]
     else
-      current = null
+      throw new Error "Bad reference to path #{path}"
 
     current
   , swaggerDoc
@@ -63,18 +64,40 @@ getValueFromPath = (swaggerDoc, path) ->
   @param {String} keyName  Optional name to use for the key property in each object
   @returns {Array.<Object>}
 ###
-exports.objectToCollection = (obj, keyName) ->
-  keyName = keyName or 'key'
+objectToCollection = exports.objectToCollection = (obj, keyName) ->
+  if keyName is undefined
+    keyName = 'key'
+
   collection = []
 
   for key, value of obj
     if value? and typeof value is 'object'
       clonedValue = clone value
-      clonedValue[keyName] = key
+      if keyName isnt null
+        clonedValue[keyName] = key
       collection.push clonedValue
 
   collection
 
+###
+  Adds an array of swagger parameters to the provided object, checking for duplicates.
+  Duplicates have the same name and location.
+
+  @param {Array.<Object>} paramArray
+  @param {Object} paramObject
+  @returns undefined
+###
+addParameters = (paramArray, paramObject) ->
+  for param in paramArray
+    paramObject[param.name+param.in] = param
+
+###
+  Validates and dereferences the swagger document then creates a list of concrete operations
+  after applying precedence rules.
+
+  @param {Object} swaggerDoc
+  @returns {Array.<Object>}
+###
 exports.createOperationsList = (swaggerDoc) ->
   # Validate
   if not validate swaggerDoc
@@ -83,16 +106,42 @@ exports.createOperationsList = (swaggerDoc) ->
   # Dereference
   swaggerDoc = dereference swaggerDoc
 
-  # Process
-  operations = []
+  # Create the list
+  results = []
 
   basePath = swaggerDoc.basePath or ''
   for path, methods of swaggerDoc.paths
-    for method, operation of methods
-      if method isnt 'parameters'
-        newOperation = clone operation
-        newOperation.path = basePath + operation.path
-        newOperation.method = method
-        operations.push newOperation
+    pathCustomFieldNames = []
+    operations = {}
+    for key, value of methods
+      if customFieldPattern.test key
+        # This is a custom field
+        pathCustomFieldNames.push key
 
-  operations
+      else if key isnt 'parameters'
+        # All other keys are operations
+        operations[key] = value
+
+    for method, operation of operations
+      newOperation = clone operation
+      newOperation.path = basePath + operation.path
+      newOperation.method = method
+      newOperation.security = operation.security or swaggerDoc.security or []
+      newOperation.produces = operation.produces or swaggerDoc.produces or []
+      newOperation.consumes = operation.consumes or swaggerDoc.produces or []
+      newOperation.schemes = operation.schemes or swaggerDoc.schemes or []
+
+      # Attach any custom fields defined that the path level that aren't defined at the operation level
+      for customFieldName in pathCustomFieldNames
+        if not newOperation[customFieldName]?
+          newOperation[customFieldName] = path[customFieldName]
+
+      # Combine the operation and path-level parameters
+      parameters = {}
+      addParameters methods.parameters or [], parameters
+      addParameters operation.parameters or [], parameters
+      newOperation.parameters = objectToCollection parameters, null
+
+      results.push newOperation
+
+  results

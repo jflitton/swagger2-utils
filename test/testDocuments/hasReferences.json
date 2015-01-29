@@ -23,13 +23,21 @@
   "produces": [
     "application/json"
   ],
+  "security": [
+    {
+      "basicAuth": []
+    }
+  ],
   "paths": {
     "/user": {
+      "x-custom1": "something!",
+      "x-custom2": "another thing!",
       "get": {
+        "x-custom1": "something different!",
+        "produces": ["application/xml"],
+        "consumes": ["application/xml"],
+        "schemes": ["http"],
         "security": [
-          {
-            "basicAuth": []
-          }
         ],
         "description": "Return all users.",
         "operationId": "getUsers",
@@ -41,6 +49,45 @@
             }
           }
         }
+      },
+      "post": {
+        "description": "Create a user.",
+        "operationId": "createUsers",
+        "responses": {
+          "204": {
+            "description": "indicates successful creation"
+          }
+        }
+      }
+    },
+    "/user/{username}": {
+      "parameters": [
+        {
+          "name": "username",
+          "type": "string",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "get": {
+        "parameters": [
+          {
+            "name": "username",
+            "type": "string",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "description": "Returns the user.",
+        "operationId": "getUser",
+        "responses": {
+          "200": {
+            "description": "user",
+            "schema": {
+              "$ref": "#/definitions/user"
+            }
+          }
+        }
       }
     }
   },
@@ -49,6 +96,14 @@
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "user": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        }
       }
     }
   }

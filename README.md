@@ -32,3 +32,10 @@ Returns a new object where all $ref keys are replaced with the value they refere
 var dereferencedDoc = swagger2.dereference(swaggerDoc);
 ```
 
+## Create Operations List
+Creates an array of operation objects.  These objects contain the "concrete" operations, meaning they have
+incorporated the schemes, parameters, custom fields, etc from the root and path-level objects.
+
+```javascript
+var operationsList = swagger2.createOperationsList(swaggerDoc);
+```
