@@ -96,4 +96,4 @@ describe 'createOperationsList unit tests', ->
       it 'attaches the custom field to the operation', ->
         assert.ok docWithReferences.paths['/user']['x-custom2']
         assert not docWithReferences.paths['/user'].get['x-custom2']?
-        assert.strictEqual operations[0]['x-custom2'], docWithReferences.paths['x-custom2']
+        assert.strictEqual operations[0]['x-custom2'], docWithReferences.paths['/user']['x-custom2']

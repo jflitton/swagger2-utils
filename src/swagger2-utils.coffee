@@ -135,10 +135,10 @@ exports.createOperationsList = (swaggerDoc) ->
       newOperation.consumes = operation.consumes or swaggerDoc.produces or []
       newOperation.schemes = operation.schemes or swaggerDoc.schemes or []
 
-      # Attach any custom fields defined that the path level that aren't defined at the operation level
+      # Attach any custom fields defined at the path level that aren't defined at the operation level
       for customFieldName in pathCustomFieldNames
         if not newOperation[customFieldName]?
-          newOperation[customFieldName] = path[customFieldName]
+          newOperation[customFieldName] = methods[customFieldName]
 
       # Combine the operation and path-level parameters
       parameters = {}
